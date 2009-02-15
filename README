@@ -1,2 +1,13 @@
 erlandome - random code fragments in Erlang for whom has time to spare
 
+%%<copyright>
+%% <year>2009</year>
+%% <holder>OGAKI, Kazutaka</holder>
+%%</copyright>
+%%<legalnotice>
+%% These programs are copyrighted free software by OGAKI, Kazutaka.
+%% You can redistribute it and/or modify it under the same terms of GPL
+%% version 2 license.
+%% Software distributed under the License is distributed on an "AS IS"
+%% basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+%%</legalnotice>
