@@ -21,7 +21,7 @@ get_id(NameList) ->
 	get_id(NameList,[]).
 
 get_id([], Store) ->
-	Store;
+	lists:reverse(Store);
 get_id([ H | T], Store) ->
 	get_id(T, [get_singleid(H)|Store]).
 
