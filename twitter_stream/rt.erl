@@ -1,3 +1,7 @@
+%%% FIXME !!
+%%%
+%%%
+
 -module(rt).
 -export([sign_in/2, spritzer/2, follow/1, track/1]).
 
@@ -39,8 +43,7 @@ follow(FollowList) ->
 %% query prameters : track
 
 track(Followee) ->
-
-
+	connect_post("/track.json", TrackItemList).
 
 sign_in(User, PW) ->
 	Auth = auth_hdr(User, PW),
@@ -53,6 +56,16 @@ connect_get(Path, Count) ->
 	{ok, Socket} = gen_tcp:connect("stream.twitter.com", 80, [binary,
 		 {packet, line}, {recbuf, 65536}]),
 	ReqStr = "GET " ++ Path ++ " HTTP/1.0\r\n" ++ Authheader ++ "\r\n\r\n",
+	ok = gen_tcp:send(Socket, ReqStr),
+	receive_data(Socket, Count + 1).
+
+connect_post(Path, Count, ParamList) ->
+	Auth = get(auth),
+	Authheader = "Authorization: Basic " ++ Auth,
+	{ok, Socket} = gen_tcp:connect("stream.twitter.com", 80, [binary,
+		 {packet, line}, {recbuf, 65536}]),
+	ReqStr = "POST " ++ Path ++ " HTTP/1.0\r\n" ++ Authheader ++ "\r\n\r\n"
+		++ ParamStr,
 	ok = gen_tcp:send(Socket, ReqStr),
 	receive_data(Socket, Count + 1).
 
