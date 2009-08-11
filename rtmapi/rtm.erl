@@ -642,9 +642,259 @@ taskssetPriority_(Timeline, ListId, TaskseriesId, TaskId, Priority) ->
                 ]).
 
 %%%    * rtm.tasks.setRecurrence
+
+taskssetRecurrence(Timeline, ListId, TaskseriesId, TaskId) ->
+	checkresponse(taskssetRecurrence_(Timeline, ListId, TaskseriesId, TaskId, "")). 
+taskssetRecurrence(Timeline, ListId, TaskseriesId, TaskId, Recurrence) ->
+	checkresponse(taskssetRecurrence_(Timeline, ListId, TaskseriesId, TaskId, Recurrence)). 
+taskssetRecurrence_(Timeline, ListId, TaskseriesId, TaskId, Recurrence) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"recurrence", Recurrence},
+                {"method", "rtm.tasks.setRecurrence"}
+                ]).
+
 %%%    * rtm.tasks.setTags
+
+taskssetTags(Timeline, ListId, TaskseriesId, TaskId) ->
+	checkresponse(taskssetTags_(Timeline, ListId, TaskseriesId, TaskId, "")). 
+taskssetTags(Timeline, ListId, TaskseriesId, TaskId, Tags) ->
+	checkresponse(taskssetTags_(Timeline, ListId, TaskseriesId, TaskId, Tags)). 
+taskssetTags_(Timeline, ListId, TaskseriesId, TaskId, Tags) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"tags", Tags},
+                {"method", "rtm.tasks.setTags"}
+                ]).
+
 %%%    * rtm.tasks.setURL
+
+taskssetUrl(Timeline, ListId, TaskseriesId, TaskId) ->
+	checkresponse(taskssetUrl_(Timeline, ListId, TaskseriesId, TaskId, "")). 
+taskssetUrl(Timeline, ListId, TaskseriesId, TaskId, Url) ->
+	checkresponse(taskssetUrl_(Timeline, ListId, TaskseriesId, TaskId, Url)). 
+taskssetUrl_(Timeline, ListId, TaskseriesId, TaskId, Url) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"url", Url},
+                {"method", "rtm.tasks.setUrl"}
+                ]).
+
 %%%    * rtm.tasks.uncomplete
+
+tasksuncomplete(Timeline, ListId, TaskseriesId, TaskId) ->
+	checkresponse(tasksuncomplete_(Timeline, ListId, TaskseriesId, TaskId)). 
+tasksuncomplete_(Timeline, ListId, TaskseriesId, TaskId) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+                {"method", "rtm.tasks.uncomplete"}
+		]).
+
+%%%
+%%% Tasks Notes
+%%%
+
+%%%    * rtm.tasks.notes.add
+
+tasksnotesAdd(Timeline, ListId, TaskseriesId, TaskId, NoteTitle, NoteText) ->
+	checkresponse(tasksnotesAdd_(Timeline, ListId, TaskseriesId, TaskId, NoteTitle, NoteText)). 
+
+tasksnotesAdd_(Timeline, ListId, TaskseriesId, TaskId, NoteTitle, NoteText) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"note_title", NoteTitle},
+		{"note_text", NoteText},
+                {"method", "rtm.tasks.notes.add"}
+		]).
+
+%%%    * rtm.tasks.notes.delete
+
+tasksnotesDelete(Timeline, ListId, TaskseriesId, TaskId) ->
+	checkresponse(tasksnotesDelete_(Timeline, ListId, TaskseriesId, TaskId)). 
+
+tasksnotesDelete_(Timeline, ListId, TaskseriesId, TaskId) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+                {"method", "rtm.tasks.notes.delete"}
+		]).
+
+%%%    * rtm.tasks.notes.edit
+
+tasksnotesEdit(Timeline, ListId, TaskseriesId, TaskId, NoteTitle, NoteText) ->
+	checkresponse(tasksnotesEdit_(Timeline, ListId, TaskseriesId, TaskId, NoteTitle, NoteText)). 
+
+tasksnotesEdit_(Timeline, ListId, TaskseriesId, TaskId, NoteTitle, NoteText) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"note_title", NoteTitle},
+		{"note_text", NoteText},
+                {"method", "rtm.tasks.notes.edit"}
+		]).
+%%%
+%%% test
+%%%
+
+%%%    * rtm.test.echo
+
+testecho() ->
+	checkresponse(testecho_()).
+
+testecho_() ->
+        callapi([
+                {"api_key", ?APIKEY},
+                {"method", "rtm.test.echo"}
+		]).
+
+%%%    * rtm.test.login
+
+testlogin() ->
+	checkresponse(testlogin_()).
+
+testlogin_() ->
+        callapi([
+                {"api_key", ?APIKEY},
+                {"method", "rtm.test.login"}
+		]).
+
+%%%
+%%% time
+%%%
+
+%%%    * rtm.time.convert
+%%%	ISO 8601 format Time. default is now
+
+timeconvert(FromTimezone, ToTimezone) ->
+	checkresponse(timeconvert_(FromTimezone, ToTimezone)).
+timeconvert_(FromTimezone, ToTimezone) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"from_timezone", FromTimezone},
+		{"to_timezone", ToTimezone},
+                {"method", "rtm.time.convert"}
+		]).
+
+timeconvert(FromTimezone, ToTimezone, Time) ->
+	checkresponse(timeconvert_(FromTimezone, ToTimezone, Time)).
+
+timeconvert_(FromTimezone, ToTimezone, Time) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"from_timezone", FromTimezone},
+		{"to_timezone", ToTimezone},
+		{"time", Time},
+                {"method", "rtm.time.convert"}
+		]).
+
+%%%    * rtm.time.parse
+
+timeparse(Text) ->
+	checkresponse(timeparse_(Text)).
+timeparse_(Text) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"text", Text},
+                {"method", "rtm.time.parse"}
+		]).
+
+timeparse(Text, Timezone) ->
+	checkresponse(timeparse_(Text, Timezone)).
+
+timeparse_(Text, Timezone) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"text", Text},
+		{"timezone", Timezone},
+                {"method", "rtm.time.parse"}
+		]).
+
+timeparse(Text, Timezone, Dateformat) ->
+	checkresponse(timeparse_(Text, Timezone, Dateformat)).
+
+timeparse_(Text, Timezone, Dateformat) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"text", Text},
+		{"timezone", Timezone},
+		{"dateformat", Dateformat},
+                {"method", "rtm.time.parse"}
+		]).
+
+%%%
+%%% timelines
+%%%
+
+%%%    * rtm.timelines.create
+
+timelinesCreate() ->
+	checkresponse(timelinesCreate_()).
+
+timelinesCreate_() ->
+        callapi([
+                {"api_key", ?APIKEY},
+                {"method", "rtm.timelines.create"}
+		]).
+
+%%%
+%%% timezones
+%%%
+
+%%%    * rtm.timezones.getList
+
+timezonesgetList() ->
+	checkresponse(timezonesgetList_()).
+
+timezonesgetList_() ->
+        callapi([
+                {"api_key", ?APIKEY},
+                {"method", "rtm.timezones.getList"}
+		]).
+
+%%%
+%%% transactions
+%%%
+
+%%%    * rtm.transactions.undo
+
+transactionsUndo(Timeline, TransactionsId) ->
+	checkresponse(transactionsUndo_(Timeline, TransactionsId)).
+
+transactionsUndo_(Timeline, TransactionsId) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"transactions_id", TransactionsId},
+                {"method", "rtm.transactions.undo"}
+		]).
+
+
 
 %%%
 %%% Usecase : Authentication
