@@ -379,9 +379,272 @@ reflectiongetMethods_() ->
 		{"method", "rtm.reflaction.getMethods"}
 		]).
 
+%%%
+%%% Settings
+%%%
 
+%%%    * rtm.settings.getList
+%%%	timezone, dateformat(0|1), timeformat(0|1), defaultlist, language
 
-%%%    * rtm.reflection.getMethods
+settingsgetList() ->
+	checkresponse(settingsgetList_()).
+
+settingsgetList_() ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"method", "rtm.settings.getList"}
+		]).
+
+%%%
+%%% Tasks
+%%%
+
+%%%    * rtm.tasks.add
+
+tasksAdd(Timeline, ListId, Name, Parse) ->
+        checkresponse(tasksAdd_(Timeline, ListId, Name, Parse)).
+
+tasksAdd_(Timeline, ListId, Name, Parse) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"name", Name},
+		{"parse", Parse},
+                {"method", "rtm.tasks.add"}
+                ]).
+
+%%%    * rtm.tasks.addTags
+
+tasksAddTags(Timeline, ListId, TaskseriesId, TaskId, Tags) ->
+        checkresponse(tasksAddTags_(Timeline, ListId, TaskseriesId, TaskId, Tags)).
+
+tasksAddTags_(Timeline, ListId, TaskseriesId, TaskId, Tags) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"tags", Tags},
+                {"method", "rtm.tasks.addTags"}
+                ]).
+
+%%%    * rtm.tasks.complete
+
+tasksComplete(Timeline, ListId, TaskseriesId, TaskId) ->
+        checkresponse(tasksComplete_(Timeline, ListId, TaskseriesId, TaskId)).
+
+tasksComplete_(Timeline, ListId, TaskseriesId, TaskId) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+                {"method", "rtm.tasks.complete"}
+                ]).
+
+%%%    * rtm.tasks.delete
+
+tasksDelete(Timeline, ListId, TaskseriesId, TaskId) ->
+        checkresponse(tasksDelete_(Timeline, ListId, TaskseriesId, TaskId)).
+
+tasksDelete_(Timeline, ListId, TaskseriesId, TaskId) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+                {"method", "rtm.tasks.delete"}
+                ]).
+
+%%%    * rtm.tasks.getList
+
+tasksgetList(Timeline, ListId, Filter, LastSync) ->
+        checkresponse(tasksgetList_(Timeline, ListId, Filter, LastSync)).
+
+tasksgetList_(Timeline, ListId, Filter, LastSync) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"filter", Filter},
+		{"last_sync", LastSync},
+                {"method", "rtm.tasks.delete"}
+		]).
+
+%%%    * rtm.tasks.movePriority
+
+tasksmovePriority(Timeline, ListId, TaskseriesId, TaskId, Direction) ->
+        checkresponse(tasksmovePriority_(Timeline, ListId, TaskseriesId, TaskId, Direction)).
+
+tasksmovePriority_(Timeline, ListId, TaskseriesId, TaskId, Direction) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"direction", Direction},
+                {"method", "rtm.tasks.movePriority"}
+                ]).
+
+%%%    * rtm.tasks.moveTo
+
+tasksmoveTo(Timeline, From, To, TaskseriesId, TaskId) ->
+        checkresponse(tasksmoveTo_(Timeline, From, To, TaskseriesId, TaskId)).
+
+tasksmoveTo_(Timeline, From, To, TaskseriesId, TaskId) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"from_list_id", From},
+		{"to_list_id", To},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+                {"method", "rtm.tasks.moveTo"}
+                ]).
+
+%%%    * rtm.tasks.postpone
+
+tasksPostpone(Timeline, ListId, TaskseriesId, TaskId) ->
+        checkresponse(tasksPostpone_(Timeline, ListId, TaskseriesId, TaskId)).
+
+tasksPostpone_(Timeline, ListId, TaskseriesId, TaskId) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+                {"method", "rtm.tasks.postpone"}
+                ]).
+
+%%%    * rtm.tasks.removeTags
+
+tasksRemoveTags(Timeline, ListId, TaskseriesId, TaskId, Tags) ->
+        checkresponse(tasksRemoveTags_(Timeline, ListId, TaskseriesId, TaskId, Tags)).
+
+tasksRemoveTags_(Timeline, ListId, TaskseriesId, TaskId, Tags) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"tags", Tags},
+                {"method", "rtm.tasks.removeTags"}
+                ]).
+
+%%%    * rtm.tasks.setDueDate
+
+taskssetDueDate(Timeline, ListId, TaskseriesId, TaskId, Due, HasDueTime, Parse) ->
+	checkresponse(taskssetDueDate_(Timeline, ListId, TaskseriesId, TaskId, Due, HasDueTime, Parse)).
+
+taskssetDueDate_(Timeline, ListId, TaskseriesId, TaskId, Due, HasDueTime, Parse) ->
+	callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"due", Due},
+		{"has_due_time", HasDueTime},
+		{"parse", Parse},
+                {"method", "rtm.tasks.setDueDate"}
+		]).
+
+%%%    * rtm.tasks.setEstimate
+
+taskssetEstimate(Timeline, ListId, TaskseriesId, TaskId) ->
+	checkresponse(taskssetEstimate_(Timeline, ListId, TaskseriesId, TaskId, "")).
+taskssetEstimate(Timeline, ListId, TaskseriesId, TaskId, Estimate) ->
+	checkresponse(taskssetEstimate_(Timeline, ListId, TaskseriesId, TaskId, Estimate)).
+
+taskssetEstimate_(Timeline, ListId, TaskseriesId, TaskId) ->
+	callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+                {"method", "rtm.tasks.setEstimate"}
+		]).
+
+taskssetEstimate_(Timeline, ListId, TaskseriesId, TaskId, Estimate) ->
+	callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"estimate", Estimate},
+                {"method", "rtm.tasks.setEstimate"}
+		]).
+
+%%%    * rtm.tasks.setLocation
+
+taskssetLocation(Timeline, ListId, TaskseriesId, TaskId) ->
+        checkresponse(taskssetLocation_(Timeline, ListId, TaskseriesId, TaskId )).
+taskssetLocation(Timeline, ListId, TaskseriesId, TaskId, LocationId) ->
+        checkresponse(taskssetLocation_(Timeline, ListId, TaskseriesId, TaskId, LocationId)).
+
+taskssetLocation_(Timeline, ListId, TaskseriesId, TaskId) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+                {"method", "rtm.tasks.setLocation"}
+		]).
+taskssetLocation_(Timeline, ListId, TaskseriesId, TaskId, LocationId) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"location_id", LocationId},
+                {"method", "rtm.tasks.setLocation"}
+                ]).
+
+%%%    * rtm.tasks.setName
+
+taskssetName(Timeline, ListId, TaskseriesId, TaskId, Name) ->
+	checkresponse(taskssetName_(Timeline, ListId, TaskseriesId, TaskId, Name)).
+taskssetName_(Timeline, ListId, TaskseriesId, TaskId, Name) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"name", Name},
+                {"method", "rtm.tasks.setName"}
+                ]).
+
+%%%    * rtm.tasks.setPriority
+
+taskssetPriority(Timeline, ListId, TaskseriesId, TaskId, Priority) ->
+	checkresponse(taskssetPriority_(Timeline, ListId, TaskseriesId, TaskId, Priority)). 
+taskssetPriority_(Timeline, ListId, TaskseriesId, TaskId, Priority) ->
+        callapi([
+                {"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"taskseries_id", TaskseriesId},
+		{"task_id", TaskId},
+		{"priority", Priority},
+                {"method", "rtm.tasks.setPriority"}
+                ]).
+
+%%%    * rtm.tasks.setRecurrence
+%%%    * rtm.tasks.setTags
+%%%    * rtm.tasks.setURL
+%%%    * rtm.tasks.uncomplete
 
 %%%
 %%% Usecase : Authentication
