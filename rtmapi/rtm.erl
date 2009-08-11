@@ -337,6 +337,51 @@ listsUnarchive_(Timeline, ListId) ->
 		{"method", "rtm.lists.unarchive"}
 		]).
 
+%%%
+%%% Locations object 
+%%%
+
+%%%    * rtm.locations.getList
+
+locationsGetList() ->
+	checkresponse(locationsGetList_()).
+
+locationsGetList_() ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"method", "rtm.locations.getList"}
+		]).
+
+%%%
+%%% API Reflection
+%%%
+
+%%%    * rtm.reflection.getMethodInfo
+
+reflectiongetMethodInfo(MethodName) ->
+	checkresponse(reflectiongetMethodInfo_(MethodName)).
+
+reflectiongetMethodInfo_(MethodName) ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"method_name", MethodName},
+		{"method", "rtm.reflaction.getMethodInfo"}
+		]).
+
+%%%    * rtm.reflection.getMethods
+
+reflectiongetMethods() ->
+	checkresponse(reflectiongetMethods_()).
+
+reflectiongetMethods_() ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"method", "rtm.reflaction.getMethods"}
+		]).
+
+
+
+%%%    * rtm.reflection.getMethods
 
 %%%
 %%% Usecase : Authentication
