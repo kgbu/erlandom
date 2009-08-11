@@ -1,11 +1,26 @@
+%%
+%%	Remember the Milk library
+%%
 -module(rtm).
+%%
 %%-export([start/0,login/0,getfrob/0,test/0]).
+%%
+%% just for unit-testing
+%%
 -compile(export_all).
 
 -include("rtm.hrl").
+%
+% sample configuration
+%
+% -define(APIKEY, "dummyKEYae2fshkkdfs").
+% -define(APISECRET, "dummySECRETfaskkwiewrwwerk").
+% -define(AUTHURL, "http://www.rememberthemilk.com/services/auth/?").
+% -define(APIURL, "http://api.rememberthemilk.com/services/rest/?").
+% -define(ACCESSWAITMSEC, 1500).
 
 %%%
-%%% library routines
+%%% utility routines
 %%%
 
 head({A,_B}) -> A.
@@ -80,7 +95,7 @@ start() ->
 %%%     %%%
 	
 %%%
-%%% Auth
+%%% Authentication
 %%%
 %%%    * rtm.auth.checkToken - Token validation
 
@@ -174,6 +189,20 @@ groupsAdd_(Timeline, Group) ->
 		{"method", "rtm.groups.add"}
 		]).
 
+%%%    * rtm.groups.addContact
+
+groupsAddContact(Timeline, GroupId, ContactId) ->
+	checkresponse(groupsAddContact_(Timeline, GroupId, ContactId)).
+
+groupsAddContact_(Timeline, GroupId, ContactId) ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"group_id", GroupId},
+		{"contact_id", ContactId},
+		{"method", "rtm.groups.addContact"}
+		]).
+
 %%%    * rtm.groups.delete
 
 groupsDelete(Timeline, GroupId) ->
@@ -196,6 +225,116 @@ groupsGetList_() ->
 	callapi([
 		{"api_key", ?APIKEY},
 		{"method", "rtm.groups.getList"}
+		]).
+
+%%%    * rtm.groups.removeContact
+
+groupsRemoveContact(Timeline, GroupId, ContactId) ->
+	checkresponse(groupsRemoveContact_(Timeline, GroupId, ContactId)).
+
+groupsRemoveContact_(Timeline, GroupId, ContactId) ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"group_id", GroupId},
+		{"contact_id", ContactId},
+		{"method", "rtm.groups.removeContact"}
+		]).
+
+%%%
+%%% Lists object 
+%%%
+%%%    * rtm.lists.add
+
+listsAdd(Timeline, Name) ->
+	checkresponse(listsAdd_(Timeline, Name, "")).
+listsAdd(Timeline, Name, Filter) ->
+	checkresponse(listsAdd_(Timeline, Name, Filter)).
+
+listsAdd_(Timeline, Name, Filter) ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"name", Name},
+		{"filter", Filter},
+		{"method", "rtm.lists.add"}
+		]).
+
+%%%    * rtm.lists.archive
+
+listsArchive(Timeline, ListId) ->
+	checkresponse(listsArchive_(Timeline, ListId)).
+
+listsArchive_(Timeline, ListId) ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"method", "rtm.lists.Archive"}
+		]).
+
+%%%    * rtm.lists.delete
+
+listsDelete(Timeline, ListId) ->
+	checkresponse(listsDelete_(Timeline, ListId)).
+
+listsDelete_(Timeline, ListId) ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"method", "rtm.lists.delete"}
+		]).
+
+%%%    * rtm.lists.getList
+
+listsGetList() ->
+	checkresponse(listsGetList_()).
+
+listsGetList_() ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"method", "rtm.lists.getList"}
+		]).
+
+%%%    * rtm.lists.setDefaultList
+
+listssetDefalutList(Timeline, ListId) ->
+	checkresponse(listssetDefaultList(Timeline, ListId)).
+
+listssetDefaultList(Timeline, ListId) ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"method", "rtm.lists.setDefaultList"}
+		]).
+
+%%%    * rtm.lists.setName
+
+listsSetName(Timeline, ListId, Name) ->
+	checkresponse(listsSetName_(Timeline, ListId, Name)).
+
+listsSetName_(Timeline, ListId, Name) ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"name", Name},
+		{"method", "rtm.lists.setName"}
+		]).
+
+%%%    * rtm.lists.unarchive
+
+listsUnarchive(Timeline, ListId) ->
+	checkresponse(listsUnarchive_(Timeline, ListId)).
+
+listsUnarchive_(Timeline, ListId) ->
+	callapi([
+		{"api_key", ?APIKEY},
+		{"timeline", Timeline},
+		{"list_id", ListId},
+		{"method", "rtm.lists.unarchive"}
 		]).
 
 
@@ -243,7 +382,9 @@ test() ->
 
 logintest() ->
 	testname("logintest"),
-	getfrob().
+	Frob = getfrob(),
+	io:format("Frob : ~p~n",[Frob]),
+	getToken(Frob).
 	
 
 test_1()->
