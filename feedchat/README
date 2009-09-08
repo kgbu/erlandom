@@ -1,0 +1,21 @@
+%%%	feedchat - chat in valid RSS format
+%%%	http://ocaokgbu.blogspot.com/2009/08/feedchat-chat-in-valid-rss-format.html
+%%%
+%%%	This is inspired by the sample code of chat server from "Programming Erlang" by Joe Armstrong
+%%%
+%%%	Chat Server -> as the sample is
+%%%	feed view -> tail -N of feed history
+%%%	           or,   tail -f -N =:= friendfeed
+%%%	
+%%%	chat server process : implemented by CouchDB
+%%%	    RSS entry = document
+%%%	    DB = history (w/ time stamp)
+%%%	
+%%%	this is cheapest implementation of friendfeed
+%%%	
+%%%	
+%%%	Map-Reduce (query against CouchDB) view point
+%%%	    Map : crunch feed via XMPP or Pubsubhubbub...
+%%%	
+%%%	    Reduce: tail -N of (feed history)
+%%%	    Reduce: tail -f -N of (feed history)
