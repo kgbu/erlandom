@@ -20,7 +20,8 @@ start() ->
 		{security_log, "logs/security_log"},
 		{transfer_log, "logs/access_log"},
 		{modules, [mod_alias, mod_auth, mod_esi, mod_actions, mod_cgi, mod_dir, mod_get, mod_head, mod_log, mod_disk_log]},
-		{erl_script_alias, {"/do", [socnode, cb]}}
+		{erl_script_alias, {"/do", [socnode, cb]}},
+		{directory_index,["index.html"]}
 	],
 	{ok, Pid} = inets:start(httpd, ServiceConfig),
 	% io:format("pids: ~p~n", [lists:map(fun(X) -> whereis(X) end, registered())]),

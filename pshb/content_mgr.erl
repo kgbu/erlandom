@@ -23,30 +23,43 @@ start() ->
 	.
 
 rpc(Command) ->
-	content_mgr ! {self(), Command}
+	content_mgr ! {self(), Command},
+	receive
+		{content_mgr, Result} ->
+			Result;
+		_ ->
+			false
+	end
 	.
 
 
 loop(State, Table) ->
     receive
-		{_UserPid, {access, Topic, _Query}} ->
-			couchdb:get(Topic),
+		{UserPid, {access, Topic}} ->
+			UserPid ! {self(), couchdb:get(Topic)},
 			loop(State, Table)
 			;
-		{_UserPid, {post, Path, Topic}} ->
+		{UserPid, {access, Topic, _Query}} ->
+			UserPid ! {self(), couchdb:get(Topic)},
+			loop(State, Table)
+			;
+		{UserPid, {post, Path, Topic}} ->
 			couchdb:post(Path, Topic),
+			UserPid ! {ok},
 			loop(State, Table)
 			;
-        {_Pid, {updated, Topic, Data}} ->
+        {UserPid, {updated, Topic, Data}} ->
 			S = self(),
 			WorkerPid = spawn(?MODULE, updater, [S, Topic, Data]),
+			UserPid ! {ok},
 			loop([{Topic, WorkerPid} | State], Table)
 			;
         {WorkerPid, {update_completed, Topic}} ->
 			loop(lists:delete({Topic, WorkerPid}, State), Table)
 			;
-		{_Pid, shutdown} ->
+		{UserPid, shutdown} ->
 			ets:tab2file(Table, ?SAVED_ETS),
+			UserPid ! {ok},
 			exit(shutdown)
 			;
         _ ->

@@ -44,7 +44,9 @@ list(SessionID, Env, Input) ->
     case is_getmethod(Method) of
 		true ->
        		mod_esi:deliver(SessionID, view_list(Env, Input));
-		_ -> false
+		_ -> 
+       		mod_esi:deliver(SessionID, "e4rro"),
+			false
     end
     .
 
@@ -65,8 +67,11 @@ entry(SessionID, Env, Input) ->
     end
 	.
 
-view_entry(Env, Input) ->
-	{error, {fixme, {Env, Input}}}
+view_entry(Env, _Input) ->
+    QueryString = proplists:get_value(query_string, Env, ""),
+    ParsedQuery = httpd:parse_query(QueryString),
+    Id = proplists:get_value("id", ParsedQuery, ""),
+	content_mgr:rpc({access, Id})
 	.
 
 post_entry(_Env, PostData) ->
