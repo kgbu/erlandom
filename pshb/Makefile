@@ -10,9 +10,16 @@
 ERL = erl -boot start_clean
 
 MODS = pshb pshb_utils pshb_publisher pshb_subscriber \
-	couchdb webhook socnode content_mgr cb
+	couchdb webhook socnode content_mgr cb \
+	salmon
 
 all:	compile
+
+start:
+	erl -boot start_sasl -config debug
+
+production:
+	erl -boot start_sasl -config production
 
 compile:	${MODS:%=%.beam}
 

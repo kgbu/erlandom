@@ -1,5 +1,8 @@
-%%%	PubSubHubbub client : publisher
+%%%	@author OGAKI, Kazutaka <ogakikz@jin.gr.jp>
+%%%	@copyright please refer http://github.com/kgbu/erlandom/blob/master/README
 %%%
+%%%	@doc
+%%%	PubSubHubbub client : publisher functionality
 %%%	ref: http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.2.html
 
 -module(pshb_publisher).

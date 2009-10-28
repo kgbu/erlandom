@@ -1,4 +1,8 @@
-%%%	socnode - communication service 
+%%%	@author OGAKI, Kazutaka <ogakikz@jin.gr.jp>
+%%%	@copyright please refer http://github.com/kgbu/erlandom/blob/master/README
+%%%
+%%%	@doc
+%%%	socnode - communication service (mod_esi callbacks called by webhook)
 %%%
 %%% RPC API
 %%%
@@ -65,8 +69,23 @@ view_entry(Env, Input) ->
 	{error, {fixme, {Env, Input}}}
 	.
 
-post_entry(Env, Input) ->
-	{error, {fixme, {Env, Input}}}
+post_entry(_Env, PostData) ->
+    ParsedData = httpd:parse_query(PostData),
+    Author = proplists:get_value("author", ParsedData, ""),
+    Content = proplists:get_value("content", ParsedData, ""),
+	Id = uuid:to_string(uuid:sha(url, ?SOCNODEURL)),
+    Ref = proplists:get_value("ref", ParsedData, parent),
+    case Ref of
+		parent ->
+			EntryAtom = salmon:new_entry_atom(Author, Content, Id),
+			content_mgr:rpc(post, Id, EntryAtom),
+			pshb_publisher:send_ping(?SOCNODEURL, "publish")
+			;
+		_Origin -> 
+    		Content = proplists:get_value("content", ParsedData, ""),
+			CommentAtom = salmon:new_comment_atom(Author, Ref, Content, Id),
+			salmon:ping(Ref, CommentAtom)
+	end
 	.
 
 delete_entry(Env, Input) ->

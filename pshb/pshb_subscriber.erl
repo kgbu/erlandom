@@ -1,13 +1,17 @@
-%%%	PubSubHubbub client : subscriber services
+%%%	@author OGAKI, Kazutaka <ogakikz@jin.gr.jp>
+%%%	@copyright please refer http://github.com/kgbu/erlandom/blob/master/README
 %%%
+%%%	@doc
+%%%	PubSubHubbub client : subscriber services
 %%% ref: http://pubsubhubbub.googlecode.com/svn/trunk/pubsubhubbub-core-0.2.html
 
 
 -module(pshb_subscriber).
--export([start/0, stop/0, loop/1,
+-export([start/0, stop/0,
 		atom_to_subscribe/1, local_subscribe/1, raw_subscribe/2, 
 		atom_to_unsubscribe/1, local_unsubscribe/1, raw_unsubscribe/2
 		]).
+-export([loop/1]).
 
 -include("pshb.hrl").
 

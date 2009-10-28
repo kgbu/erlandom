@@ -1,5 +1,8 @@
-%%%	webhook - HTTPd for callback and web-service
+%%%	@author OGAKI, Kazutaka <ogakikz@jin.gr.jp>
+%%%	@copyright please refer http://github.com/kgbu/erlandom/blob/master/README
 %%%
+%%% @doc
+%%%	webhook - HTTPd for invoke callbacks
 %%%
 -module(webhook).
 -export([start/0, stop/0, info/0, reload/1]).

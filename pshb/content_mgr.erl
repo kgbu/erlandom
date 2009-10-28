@@ -2,7 +2,11 @@
 %%%
 %%%
 -module(content_mgr).
--export([start/0, loop/2, stop/0, updater/3]).
+-export([start/0, rpc/1]).
+
+
+%%% internal loop use
+-export([loop/2, updater/3]).
 
 -include("pshb.hrl").
 
@@ -18,22 +22,30 @@ start() ->
     erlang:register(content_mgr, PidContent)
 	.
 
+rpc(Command) ->
+	content_mgr ! {self(), Command}
+	.
+
 
 loop(State, Table) ->
     receive
-		{UserPid, access, Topic, _Query} ->
-			UserPid ! couchdb:get(Topic),
+		{_UserPid, {access, Topic, _Query}} ->
+			couchdb:get(Topic),
 			loop(State, Table)
 			;
-        {updated, {Topic, Data}} ->
+		{_UserPid, {post, Path, Topic}} ->
+			couchdb:post(Path, Topic),
+			loop(State, Table)
+			;
+        {_Pid, {updated, Topic, Data}} ->
 			S = self(),
 			WorkerPid = spawn(?MODULE, updater, [S, Topic, Data]),
 			loop([{Topic, WorkerPid} | State], Table)
 			;
-        {update_completed, {Topic, WorkerPid}} ->
+        {WorkerPid, {update_completed, Topic}} ->
 			loop(lists:delete({Topic, WorkerPid}, State), Table)
 			;
-		{shutdown} ->
+		{_Pid, shutdown} ->
 			ets:tab2file(Table, ?SAVED_ETS),
 			exit(shutdown)
 			;
@@ -42,13 +54,9 @@ loop(State, Table) ->
     end
     .
 
-stop() ->
-	content_mgr ! {shutdown}
-	.
-
 
 %%
-%	tasks
+%	worker for subtask
 %
 
 updater(Pid, Topic, Data) ->

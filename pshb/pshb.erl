@@ -1,3 +1,7 @@
+%%%	@author OGAKI, Kazutaka <kgbu@keynauts.com>
+%%%	@copyright please refer http://github.com/kgbu/erlandom/blob/master/README
+%%%
+%%%	@doc
 %%%	PubSubHubbub system 
 %%%
 %%% FIXME : rewrite in supervisor behaviour
@@ -8,6 +12,7 @@
 %%  registered server
 %
 %	0) supervisor :	service management loop
+%	0.5) uuid			:	uuid server
 %   1) webhook			:   httpd for 
 %								pshb_callback 
 %								socnode web view
@@ -18,11 +23,24 @@
 %	feed db	: couchDB
 
 -module(pshb).
--export([start/0, loop/1]).
+-export([start/0]).
+
+%	just for spawn
+-export([loop/1]).
+
 -include("pshb.hrl").
 
+%%	@spec start() -> pid()
+%%
+%%	@doc
+%%	start services
+%%
 start() ->
+	crypto:start(),
 	inets:start(),
+
+	uuid:start(),
+	
 	couchdb:connect([{server, "http://127.0.0.1:5984"}]),
 	couchdb:status(),
 

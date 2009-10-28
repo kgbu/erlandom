@@ -19,3 +19,14 @@
 %%%	
 %%%	    Reduce: tail -N of (feed history)
 %%%	    Reduce: tail -f -N of (feed history)
+
+
+as a virtual micro-blog
+
+
+User			View								CouchDB
+	sentence
+			POST(as RSS(Service, User, Contents))
+													RSS document
+
+key is how to implement View layer to scale

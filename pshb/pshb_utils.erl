@@ -1,4 +1,11 @@
+%%%	@author OGAKI, Kazutaka <ogakikz@jin.gr.jp>
+%%%	@copyright please refer http://github.com/kgbu/erlandom/blob/master/README
+%%%
+%%%	@doc
+%%%	utilities
+%%%
 -module(pshb_utils).
+
 -compile(export_all).
 
 %%	Atom handling
@@ -128,6 +135,26 @@ is_http(Proto) ->
 	end
 	.
 
+is_validgid(Id) when is_binary(Id) ->
+	is_validgid(binary_to_list(Id)) 
+	;
+is_validgid(Id) when is_list(Id)->
+	true
+	;
+is_validgid(_Id) ->
+	false
+	.
+
+is_validdatetime(DateTime) when is_binary(DateTime) ->
+	is_validdatetime(binary_to_list(DateTime))
+	;
+is_validdatetime(DateTime) when is_list(DateTime) ->
+	% FIXME
+	true
+	;
+is_validdatetime(_DateTime) ->
+	false
+	.
 
 is_fullcontentslist(Contents) ->
 	{ok, Contents}
@@ -140,6 +167,10 @@ is_notificationlist(Notifications) ->
 	{ok, Notifications}
 	.
 
+
+%%%
+%%	misc.
+%
 
 mktemp() ->
 	string:strip(os:cmd("mktemp"),both,$\n)
