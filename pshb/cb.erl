@@ -8,7 +8,8 @@
 -module(cb).
 -export([notice/3]).
 
--define(TEXTHEADER, "Content-type:text/html\r\n\r\n").
+-include("pshb.hrl").
+%-define(TEXTHEADER, "Content-type:text/html\r\n\r\n").
 
 notice(SessionID, _Env, _Input) when not is_pid(SessionID) ->
 	mod_esi:deliver(SessionID, ?TEXTHEADER ++ "hi")

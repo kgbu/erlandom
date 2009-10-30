@@ -45,13 +45,21 @@ list(SessionID, Env, Input) ->
 		true ->
        		mod_esi:deliver(SessionID, view_list(Env, Input));
 		_ -> 
-       		mod_esi:deliver(SessionID, "e4rro"),
+       		mod_esi:deliver(SessionID, "Only GET method is supported."),
 			false
     end
     .
 
-view_list(Env, Input) ->
-	{error, {fixme, {Env, Input}}}
+view_list(Env, _Input) ->
+    QueryString = proplists:get_value(query_string, Env, ""),
+    ParsedQuery = httpd:parse_query(QueryString),
+    Skip = proplists:get_value("offset", ParsedQuery, ""),
+    Limit = proplists:get_value("pagesize", ParsedQuery, "5"),
+%%	for Range, required Path is as below
+%% /blog/_design/sofa/_view/recent-posts?descending=true&limit=5&skip=10
+%%  ref: http://books.couchdb.org/relax/example-app/view-recent-posts
+%
+	content_mgr:rpc({access_with_range, Skip, Limit})
 	.
 
 entry(SessionID, Env, Input) ->
@@ -71,7 +79,8 @@ view_entry(Env, _Input) ->
     QueryString = proplists:get_value(query_string, Env, ""),
     ParsedQuery = httpd:parse_query(QueryString),
     Id = proplists:get_value("id", ParsedQuery, ""),
-	content_mgr:rpc({access, Id})
+	content_mgr:rpc({access, Id}),
+	?TEXTHEADER ++ "done"
 	.
 
 post_entry(_Env, PostData) ->
@@ -84,12 +93,14 @@ post_entry(_Env, PostData) ->
 		parent ->
 			EntryAtom = salmon:new_entry_atom(Author, Content, Id),
 			content_mgr:rpc(post, Id, EntryAtom),
-			pshb_publisher:send_ping(?SOCNODEURL, "publish")
+			pshb_publisher:send_ping(?SOCNODEURL, "publish"),
+			?LOCATION 
 			;
 		_Origin -> 
     		Content = proplists:get_value("content", ParsedData, ""),
 			CommentAtom = salmon:new_comment_atom(Author, Ref, Content, Id),
-			salmon:ping(Ref, CommentAtom)
+			salmon:ping(Ref, CommentAtom),
+			?LOCATION
 	end
 	.
 

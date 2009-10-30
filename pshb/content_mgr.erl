@@ -1,12 +1,19 @@
-%%% content_mgr - gateway to DB
+%%%	@author OGAKI, Kazutaka <ogakikz@jin.gr.jp>
+%%%	@copyright please refer http://github.com/kgbu/erlandom/blob/master/README
 %%%
+%%%	@doc
+%%% content_mgr - gateway to DB for webservice (socnode, this time) 
+%%%	couchdb module is backend DB (shall be pluggable)
 %%%
+
 -module(content_mgr).
--export([start/0, rpc/1]).
+-export([start/0, rpc/1, stop/0]).
+-export([access_id/1, access_range/2, post_entry/2, post_comment/3]).
+-export([get_couchdb/1, put_couchdb/1, post_couchdb/2, delete_couchdb/1]).
 
 
 %%% internal loop use
--export([loop/2, updater/3]).
+-export([loop/2, updater/2]).
 
 -include("pshb.hrl").
 
@@ -22,6 +29,56 @@ start() ->
     erlang:register(content_mgr, PidContent)
 	.
 
+stop() ->
+	case whereis(content_mgr) of
+		undefined ->
+			do_nothing
+			;
+		_ ->
+			?MODULE:rpc({stop})
+	end,
+	{ok}
+	.
+
+access_id(Id) ->
+	Topic = ?CONTENTPATHBASE ++ Id,
+	?MODULE:rpc({get, Topic})
+	.
+
+access_range(Offset, Length) ->
+	Topic = ?CONTENTPATHBASE ++ "?skip=" ++ Offset ++ "&limit=" ++ Length,
+	?MODULE:rpc({get, Topic})
+	.
+
+post_entry(_Author, Content) ->
+	Topic = ?CONTENTPATHBASE,
+	?MODULE:rpc({post, Topic, Content})
+	.
+
+post_comment(Ref, _Author, Content) ->
+	Topic = ?CONTENTPATHBASE ++ Ref,
+	?MODULE:rpc({post, Topic, Content})
+	.
+
+get_couchdb(Topic) ->
+	?MODULE:rpc({get, Topic})
+	.
+
+put_couchdb(Topic) ->
+	?MODULE:rpc({put, Topic})
+	.
+
+post_couchdb(Topic, Data) ->
+	?MODULE:rpc({post, Topic, Data})
+	.
+
+delete_couchdb(Topic) ->
+	?MODULE:rpc({get, Topic})
+	.
+
+%%	operation backend
+%
+
 rpc(Command) ->
 	content_mgr ! {self(), Command},
 	receive
@@ -35,19 +92,45 @@ rpc(Command) ->
 
 loop(State, Table) ->
     receive
-		{UserPid, {access, Topic}} ->
+		%%
+		%%	SYNC call event (do immediate job and reply) 
+		%%
+		{UserPid, {access_id, Id}} ->
+			Topic = id_to_topic(Id),
 			UserPid ! {self(), couchdb:get(Topic)},
 			loop(State, Table)
 			;
-		{UserPid, {access, Topic, _Query}} ->
-			UserPid ! {self(), couchdb:get(Topic)},
+		%
+		%	couchDB generic operation
+		%
+		{UserPid, {get, Path}} ->
+			UserPid ! {self(), couchdb:rest_get(Path)},
 			loop(State, Table)
 			;
-		{UserPid, {post, Path, Topic}} ->
-			couchdb:post(Path, Topic),
+		{UserPid, {put, Path, Data}} ->
+			couchdb:rest_put(Path, Data),
 			UserPid ! {ok},
 			loop(State, Table)
 			;
+		{UserPid, {post, Path, Data}} ->
+			couchdb:rest_post(Path, Data),
+			UserPid ! {ok},
+			loop(State, Table)
+			;
+		{UserPid, {delete, Path}} ->
+			couchdb:rest_delete(Path),
+			UserPid ! {ok},
+			loop(State, Table)
+			;
+		%	service operation
+		{UserPid, stop} ->
+			ets:tab2file(Table, ?SAVED_ETS),
+			UserPid ! {ok},
+			exit(shutdown)
+			;
+		%%
+		%%	ASYNC call event (do job, and set completion status later)
+		%%
         {UserPid, {updated, Topic, Data}} ->
 			S = self(),
 			WorkerPid = spawn(?MODULE, updater, [S, Topic, Data]),
@@ -57,11 +140,6 @@ loop(State, Table) ->
         {WorkerPid, {update_completed, Topic}} ->
 			loop(lists:delete({Topic, WorkerPid}, State), Table)
 			;
-		{UserPid, shutdown} ->
-			ets:tab2file(Table, ?SAVED_ETS),
-			UserPid ! {ok},
-			exit(shutdown)
-			;
         _ ->
             loop(State, Table)
     end
@@ -69,15 +147,23 @@ loop(State, Table) ->
 
 
 %%
-%	worker for subtask
+%	worker for ASYNC subtask
 %
 
-updater(Pid, Topic, Data) ->
+updater(Topic, Data) ->
 	couchdb:post(topic2path(Topic), Data),
-	Pid ! {update_completed, {Topic, self()}}
+	content_mgr ! {self(), {update_completed, Topic}}
 	.
 
 topic2path(Str) ->
 	% FIXME : smarter path analysis
 	erlang:md5(Str)
+	.
+
+
+%%
+%	couchDB specific request transformation
+%
+id_to_topic(Id) ->
+	Id
 	.
