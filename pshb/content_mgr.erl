@@ -18,15 +18,26 @@
 -include("pshb.hrl").
 
 start() ->
+	access_couchdb(),
 	case ets:file2tab(?SAVED_ETS) of
 		{ok, Table} ->
-			Table;
+			Table
+			;
 		{error, {read_error,{not_a_log_file, _}}} ->
 			Table = ets:new(?TABLE_NAME, []),
 			ets:tab2file(Table, ?SAVED_ETS)
 	end,
     PidContent = spawn(?MODULE, loop, [[], Table]),
     erlang:register(content_mgr, PidContent)
+	.
+
+access_couchdb() ->
+	case erlang_couchdb:database_info({?COUCHDBSVR, ?COUCHDBPORT}, ?SOCNODEDB) of
+		{error, _Reason} -> 
+			erlang_couchdb:create_database({?COUCHDBSVR, ?COUCHDBPORT}, ?SOCNODEDB)
+			;
+		_ -> ok
+	end
 	.
 
 stop() ->
@@ -97,28 +108,28 @@ loop(State, Table) ->
 		%%
 		{UserPid, {access_id, Id}} ->
 			Topic = id_to_topic(Id),
-			UserPid ! {self(), couchdb:get(Topic)},
+			UserPid ! {self(), erlang_couchdb:get(Topic)},
 			loop(State, Table)
 			;
 		%
 		%	couchDB generic operation
 		%
 		{UserPid, {get, Path}} ->
-			UserPid ! {self(), couchdb:rest_get(Path)},
+			UserPid ! {self(), erlang_couchdb:rest_get(Path)},
 			loop(State, Table)
 			;
 		{UserPid, {put, Path, Data}} ->
-			couchdb:rest_put(Path, Data),
+			erlang_couchdb:rest_put(Path, Data),
 			UserPid ! {ok},
 			loop(State, Table)
 			;
 		{UserPid, {post, Path, Data}} ->
-			couchdb:rest_post(Path, Data),
+			erlang_couchdb:rest_post(Path, Data),
 			UserPid ! {ok},
 			loop(State, Table)
 			;
 		{UserPid, {delete, Path}} ->
-			couchdb:rest_delete(Path),
+			erlang_couchdb:rest_delete(Path),
 			UserPid ! {ok},
 			loop(State, Table)
 			;
@@ -151,7 +162,7 @@ loop(State, Table) ->
 %
 
 updater(Topic, Data) ->
-	couchdb:post(topic2path(Topic), Data),
+	erlang_couchdb:post(topic2path(Topic), Data),
 	content_mgr ! {self(), {update_completed, Topic}}
 	.
 

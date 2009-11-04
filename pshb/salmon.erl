@@ -4,7 +4,11 @@
 %%%	@doc
 %%%	salmon protocol related codes
 %%%	ref: http://www.salmon-protocol.org/salmon-protocol-summary
-%%%	FIXME: this code is just for stub
+%%%
+%%%	other references
+%%%	Atom: RFC4287
+%%%	Id format: RFC3987 (IRI:Internationalized Resource Identifiers)
+%%%	Updated format: RFC3339 (Date and Time on the Internet: Timestamps)
 %%%
 -module(salmon).
 
@@ -12,7 +16,8 @@
 -export([ping/2, validate_ping/2, new_entry_atom/3, new_comment_atom/4]).
 
 %	public utilities
--export([validate_atom/1, sign/1, sign/2, sign/3]).
+-export([validate_atom/1, sign/1, sign/2, sign/3,
+		 now_RFC3339_Z/0, localtime_to_RFC3339_Z/1]).
 
 %	external library
 %	uuid :	http://github.com/akreiling/erlang-uuid
@@ -55,7 +60,7 @@ new_entry_atom(Author, Content, Id) ->
 %	generate comment Atom
 %
 new_comment_atom(Refer, Author, Content, Id) ->
-	Updated = now(),
+	Updated = now_RFC3339_Z(),
     {Root, _Misc} = xmerl_scan:string("<entry xmlns='http://www.w3.org/2005/Atom'></entry>"),
     SimpleBase = [{author, [], [Author]},
                      {content,[], [Content]},
@@ -213,3 +218,21 @@ crypto_start() ->
 	end
 	.
 
+%%%
+%%	datetime string generator
+%%	refer RFC3339 (for Atom timestamp)
+%
+now_RFC3339_Z() ->
+	localtime_to_RFC3339_Z(erlang:localtime())
+	.
+	
+localtime_to_RFC3339_Z(DateTime) ->
+	{{Y, M, D}, {H, Min, S}} = erlang:localtime_to_universaltime(DateTime),
+	[M2, D2, H2, Min2, S2] = lists:map(fun(X) -> to_2digits(X) end,
+								[M,D,H,Min,S]),
+	lists:flatten(io_lib:format("~p-~s-~sT~s:~s:~sZ",[Y,M2,D2, H2,Min2,S2]))
+	.
+
+to_2digits(N) ->
+	lists:flatten([integer_to_list(N div 10), integer_to_list(N rem 10)])
+	.

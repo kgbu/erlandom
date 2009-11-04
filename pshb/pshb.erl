@@ -41,7 +41,7 @@ start() ->
 
 	uuid:start(),
 	
-	couchdb:connect([{server, "http://127.0.0.1:5984"}]),
+	couchdb:connect({?COUCHDBSVR, ?COUCHDBPORT}),
 	couchdb:status(),
 
 	webhook:start(),

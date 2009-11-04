@@ -11,8 +11,9 @@
 ERL = erl -boot start_clean
 
 MODS = pshb pshb_utils pshb_publisher pshb_subscriber \
-	couchdb webhook socnode content_mgr cb \
+	webhook socnode content_mgr cb couchdb \
 	salmon \
+	erlang_couchdb \
 	uuid mochijson mochijson2
 
 all:	compile
@@ -22,7 +23,7 @@ compile:	${MODS:%=%.beam}
 #	execute common test suites
 #
 ct:
-	/usr/local/erlang/test_tools/common_test-1.4.5/priv/bin/run_test -dir .
+	/usr/local/lib/erlang/lib//common_test-1.4.5/priv/bin/run_test -config ct.hrl -dir . -logdir ./test
 
 #	start Erlang interpreter in various environments
 #
@@ -45,4 +46,4 @@ clean:
 
 #	clean up common test results(directories)
 clean_test:
-	rm -rf ct_run.ct@www*
+	rm -rf ./test/ct_run.ct@www*

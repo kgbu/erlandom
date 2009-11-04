@@ -14,6 +14,7 @@
 -module(socnode).
 
 -export([login/3,
+		signup/3,
 		list/3,
 		entry/3,
 		search/3,
@@ -30,21 +31,46 @@ login(SessionID, Env, Input) ->
 	Method = proplists:get_value(request_method , Env),
     case is_getmethod(Method) of
 		true -> 
+			auth(Env),
        		mod_esi:deliver(SessionID, do_login(Env, Input));
 		_ -> false
     end
     .
 
-do_login(Env, Input) ->
-	{error, {fixme, {Env, Input}}}
+
+do_login(Env, _) ->
+    QueryString = proplists:get_value(query_string, Env, ""),
+    ParsedQuery = httpd:parse_query(QueryString),
+    Name = proplists:get_value("name", ParsedQuery, ""),
+    Passwd = proplists:get_value("password", ParsedQuery, "")
+	.
+
+signup(SessionID, Env, Input) ->
+	Method = proplists:get_value(request_method , Env),
+    case is_getmethod(Method) of
+		true -> 
+			auth(Env),
+       		mod_esi:deliver(SessionID, do_signup(Env, Input));
+		_ -> false
+    end
+    .
+
+do_signup(Env, _) ->
+    QueryString = proplists:get_value(query_string, Env, ""),
+    ParsedQuery = httpd:parse_query(QueryString),
+    Name = proplists:get_value("name", ParsedQuery, ""),
+    Passwd = proplists:get_value("password", ParsedQuery, ""),
+    Address = proplists:get_value("password", ParsedQuery, "")
 	.
 
 list(SessionID, Env, Input) ->
 	Method = proplists:get_value(request_method , Env),
     case is_getmethod(Method) of
 		true ->
+			auth(Env),
        		mod_esi:deliver(SessionID, view_list(Env, Input));
 		_ -> 
+			auth(Env),
        		mod_esi:deliver(SessionID, "Only GET method is supported."),
 			false
     end
@@ -66,10 +92,13 @@ entry(SessionID, Env, Input) ->
 	Method = method_of(proplists:get_value(request_method , Env)),
     case Method of
 		get ->
+			auth(Env),
         	mod_esi:deliver(SessionID, view_entry(Env, Input));
 		post ->
+			auth(Env),
         	mod_esi:deliver(SessionID, post_entry(Env, Input));
 		delete ->
+			auth(Env),
         	mod_esi:deliver(SessionID, delete_entry(Env, Input));
         true -> false
     end
@@ -140,6 +169,13 @@ get_notice(Env, Input) ->
 %%
 %%	utilities
 %%
+
+auth(Env) ->
+    QueryString = proplists:get_value(query_string, Env, ""),
+    ParsedQuery = httpd:parse_query(QueryString),
+    proplists:get_value("id", ParsedQuery, "")
+	.
+
 
 method_of(Value) ->
 	case is_getmethod(Value) of
