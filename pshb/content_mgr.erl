@@ -32,6 +32,7 @@ start() ->
 	.
 
 access_couchdb() ->
+	error_logger:info_msg("accessing database ~p on CouchDB ~p ~p",[?SOCNODEDB, ?COUCHDBSVR, ?COUCHDBPORT]),
 	case erlang_couchdb:database_info({?COUCHDBSVR, ?COUCHDBPORT}, ?SOCNODEDB) of
 		{error, _Reason} -> 
 			erlang_couchdb:create_database({?COUCHDBSVR, ?COUCHDBPORT}, ?SOCNODEDB)
@@ -41,6 +42,7 @@ access_couchdb() ->
 	.
 
 stop() ->
+	error_logger:info_msg("stoppin",[]),
 	case whereis(content_mgr) of
 		undefined ->
 			do_nothing
@@ -52,6 +54,7 @@ stop() ->
 	.
 
 access_id(Id) ->
+	error_logger:info_msg("access by Id ~p",[Id]),
 	Topic = ?CONTENTPATHBASE ++ Id,
 	?MODULE:rpc({get, Topic})
 	.
@@ -115,21 +118,21 @@ loop(State, Table) ->
 		%	couchDB generic operation
 		%
 		{UserPid, {get, Path}} ->
-			UserPid ! {self(), erlang_couchdb:rest_get(Path)},
+			UserPid ! {self(), couchdb:rest_get(Path)},
 			loop(State, Table)
 			;
 		{UserPid, {put, Path, Data}} ->
-			erlang_couchdb:rest_put(Path, Data),
+			couchdb:rest_put(Path, Data),
 			UserPid ! {ok},
 			loop(State, Table)
 			;
 		{UserPid, {post, Path, Data}} ->
-			erlang_couchdb:rest_post(Path, Data),
+			couchdb:rest_post(Path, Data),
 			UserPid ! {ok},
 			loop(State, Table)
 			;
 		{UserPid, {delete, Path}} ->
-			erlang_couchdb:rest_delete(Path),
+			couchdb:rest_delete(Path),
 			UserPid ! {ok},
 			loop(State, Table)
 			;

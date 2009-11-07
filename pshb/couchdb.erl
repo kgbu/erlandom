@@ -46,8 +46,7 @@ connect(_BadConfig)  ->
 %%%	API
 %%%
 status() ->
-	{Server, Port} = ?CONF(server),
-	erlang_couchdb:server_info({Server, Port})
+	erlang_couchdb:server_info(?CONF(server))
 	.
 
 all_db() ->
@@ -107,30 +106,30 @@ delete_doc(Db, Id, Revision) ->
 
 rest_get(Path) ->
 	{Server, Port} = ?CONF(server),
-	{ok, _Result} = http:request(get,{string:join([Server, ":", integer_to_list(Port), Path],""),[]},[],[])
+	{ok, _Result} = http:request(get,{string:join(["http://", Server, ":", integer_to_list(Port), Path],""),[]},[],[])
 	.
 
 rest_put(Path, Body) ->
 	{Server, Port} = ?CONF(server),
 	ContentType = ?JSONTYPE,
-	{ok, _Result} = http:request(put,{string:join([Server, ":", integer_to_list(Port) ,Path], ""),[],ContentType,Body},[],[])
+	{ok, _Result} = http:request(put,{string:join(["http://", Server, ":", integer_to_list(Port) ,Path], ""),[],ContentType,Body},[],[])
 	.
 
 rest_post(Path, Body) when is_binary(Body) ->
 	{Server, Port} = ?CONF(server),
 	ContentType = ?JSONTYPE,
-	{ok, _Result} = http:request(post,{string:join([Server, ":", integer_to_list(Port), Path], ""),[],ContentType,Body},[],[])
+	{ok, _Result} = http:request(post,{string:join(["http://", Server, ":", integer_to_list(Port), Path], ""),[],ContentType,Body},[],[])
 	;
 rest_post(Path, Body) ->
 	{Server, Port} = ?CONF(server),
 	ContentType = "application/x-www-form-urlencoded",
-	{ok, _Result} = http:request(post,{string:join([Server, ":", integer_to_list(Port), Path], ""),[],ContentType,Body},[],[])
+	{ok, _Result} = http:request(post,{string:join(["http://", Server, ":", integer_to_list(Port), Path], ""),[],ContentType,Body},[],[])
 	.
 
 rest_delete(Path) ->
 	{Server, Port} = ?CONF(server),
 	ContentType = "application/x-www-form-urlencoded",
-	{ok, _Result} = http:request(delete,{string:join([Server, ":", Port, Path], ""),[], ContentType, ""},[],[])
+	{ok, _Result} = http:request(delete,{string:join(["http://", Server, ":", Port, Path], ""),[], ContentType, ""},[],[])
 	.
 
 

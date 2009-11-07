@@ -22,8 +22,9 @@ compile:	${MODS:%=%.beam}
 
 #	execute common test suites
 #
-ct:
-	/usr/local/lib/erlang/lib//common_test-1.4.5/priv/bin/run_test -config ct.hrl -dir . -logdir ./test
+ct:	compile
+	cp *.beam ./test
+	/usr/local/lib/erlang/lib//common_test-1.4.5/priv/bin/run_test -dir . -logdir ./test_logs
 
 #	start Erlang interpreter in various environments
 #
@@ -46,4 +47,4 @@ clean:
 
 #	clean up common test results(directories)
 clean_test:
-	rm -rf ./test/ct_run.ct@www*
+	rm -rf ./test_logs/ct_run.ct@www*
