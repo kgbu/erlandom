@@ -3,7 +3,7 @@
 .SUFFIXES:	.erl	.beam	.yrl
 
 .erl.beam:
-	erlc -W $<
+	erlc -W +debug_info $<
 
 .yrl.erl:
 	erlc -W $<
@@ -21,10 +21,11 @@ all:	compile
 compile:	${MODS:%=%.beam}
 
 #	execute common test suites
-#
+#	FIXME: -dir option shall be "./test" (default handling by run_test)
+#	FIXME: path setting shall be fixed to remove BEAM copy
 ct:	compile
 	cp *.beam ./test
-	/usr/local/lib/erlang/lib//common_test-1.4.5/priv/bin/run_test -dir . -logdir ./test_logs
+	/usr/local/lib/erlang/lib//common_test-1.4.5/priv/bin/run_test -dir . -logdir ./webhook/htdocs/couchtest -cover ./config/pshb.coverspec
 
 #	start Erlang interpreter in various environments
 #
