@@ -24,6 +24,11 @@ start() ->
 			Table
 			;
 		{error, {read_error,{not_a_log_file, _}}} ->
+			error_logger:info_msg("ets not_a_log_file error~n",[]),
+			Table = ets:new(?TABLE_NAME, []),
+			ets:tab2file(Table, ?SAVED_ETS);
+		{error, Reason} ->
+			error_logger:error_msg("ets error: ~p~n",[Reason]),
 			Table = ets:new(?TABLE_NAME, []),
 			ets:tab2file(Table, ?SAVED_ETS)
 	end,
@@ -143,7 +148,7 @@ loop(State, Table) ->
 			exit(shutdown)
 			;
 		%%
-		%%	ASYNC call event (do job, and set completion status later)
+		%%	cast (ASYNC call) event (do job, and set completion status later)
 		%%
         {UserPid, {updated, Topic, Data}} ->
 			S = self(),

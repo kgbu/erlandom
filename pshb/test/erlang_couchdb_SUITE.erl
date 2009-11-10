@@ -12,60 +12,118 @@
 
 %%--------------------------------------------------------------------
 %% Function: suite() -> DefaultData
-%% DefaultData: [tuple()]  
+%% DefaultData: [tuple()]
 %% Description: Require variables and set default values for the suite
 %%--------------------------------------------------------------------
-suite() -> [{timetrap,{minutes,1}}].
-
-
+suite() -> [{timetrap,{minutes,1}}]
+	.
 
 all() ->
-	[serverinfo, databaselifecycle, documentlifecycle]
+	[serverinfo, databaselifecycle, documentlifecycle,
+	 createview, viewaccess_nullmap, viewaccess_maponly]     %, viewaccess_mapreduce]
 	.
 
 init_per_suite(Config) ->
-    crypto:start(),
-    inets:start(),
-    uuid:start(),
-    Config
-    .
+	crypto:start(),
+	inets:start(),
+	uuid:start(),
+	Config
+	.
 
 end_per_suite(_Config) ->
-    inets:stop(),
-    ok
-    .
+	case erlang_couchdb:database_info(?CONNECTION, ?DBNAME) of
+		{ok, _Res} ->
+			erlang_couchdb:delete_database(?CONNECTION, ?DBNAME)
+			;
+		_ -> ok
+	end,
+	inets:stop(),
+	ok
+	.
 
 serverinfo() ->
 	[{userdata,[{doc,"Server connection, and information"}]}]
 	.
 
 serverinfo(_Config) ->
-	erlang_couchdb:server_info(?CONNECTION),
-	ct:print(test_category, "server info ~p~n", [erlang_couchdb:database_info(?CONNECTION, ?DBNAME)]),
-	ok
-	.
-
-databaselifecycle() ->
-	[{userdata,[{doc,"Database cration, information, and deletion"}]}]
-	.
+    {ok, Res} = erlang_couchdb:server_info(?CONNECTION),
+    ct:print(test_category, "server info ~p~n", [Res])
+    .
 
 databaselifecycle(_Config) ->
-	erlang_couchdb:create_database(?CONNECTION, ?DBNAME),
-	erlang_couchdb:database_info(?CONNECTION, ?DBNAME),
-	erlang_couchdb:delete_database(?CONNECTION, ?DBNAME),
-	ok
-	.
+    ok = erlang_couchdb:create_database(?CONNECTION, ?DBNAME),
+    {ok, Res} = erlang_couchdb:database_info(?CONNECTION, ?DBNAME),
+    ct:print(test_category, "database info for ~p~n~p~n", [?DBNAME, Res]),
+    ok = erlang_couchdb:delete_database(?CONNECTION, ?DBNAME)
+    .
 
 documentlifecycle() ->
-	[{userdata,[{doc,"Document creation, retrieve, and deletion"}]}]
-	.
+    [{userdata,[{doc,"Document creation, retrieve, and deletion"}]}]
+    .
 
 documentlifecycle(_Config) ->
-	erlang_couchdb:create_database(?CONNECTION, ?DBNAME),
-	{json,{struct,[_, {<<"id">>, Id},_]}} = erlang_couchdb:create_document(
-		?CONNECTION, ?DBNAME, {struct, [{<<"foo">>, <<"bar">> } ]}),
-	ct:print(test_category, "id: ~p", [Id]),
-	erlang_couchdb:retrieve_document(?CONNECTION, ?DBNAME, binary_to_list(Id)),
-	ok
+    ok = erlang_couchdb:create_database(?CONNECTION, ?DBNAME),
+    {json,{struct,[_, {<<"id">>, Id},_]}} = erlang_couchdb:create_document(?CONNECTION, ?DBNAME, {struct, [{<<"foo">>, <<"bar">> } ]}),
+    ct:print(test_category, "id: ~p", [Id]),
+    Doc = erlang_couchdb:retrieve_document(?CONNECTION, ?DBNAME, binary_to_list((Id))),
+    ct:print(test_category, "Document: ~p", [Doc]),
+    ok = erlang_couchdb:delete_database(?CONNECTION, ?DBNAME)
+    .
+
+
+createview() ->
+    [{userdata,[{doc,"Documents creation, set view, and deletion"}]}]
+    .
+
+createview(_Config) ->
+    %   setup
+    ok = erlang_couchdb:create_database(?CONNECTION, ?DBNAME),
+    {json,{struct,[_, {<<"id">>, Id},_]}} = erlang_couchdb:create_document(?CONNECTION, ?DBNAME, {struct, [{<<"type">>, <<"D">> } ]}),
+    {json,{struct,[_, {<<"id">>, Id2},_]}} = erlang_couchdb:create_document(?CONNECTION, ?DBNAME, {struct, [{<<"type">>, <<"S">> } ]}),
+    Doc = erlang_couchdb:retrieve_document(?CONNECTION, ?DBNAME, binary_to_list((Id))),
+    ct:print(test_category, "Document: ~p", [Doc]),
+    Doc2 = erlang_couchdb:retrieve_document(?CONNECTION, ?DBNAME, binary_to_list(Id2)),
+    ct:print(test_category, "Document2: ~p", [Doc2]),
+	View1 = "function(doc) { if(doc.type) { emit(doc.type)}}",
+    Views = [{"all", View1}],
+    Res = erlang_couchdb:create_view(?CONNECTION, ?DBNAME, "testview", <<"javasccript">>, Views, []),
+    ct:print("view creation result: ~p~n",[Res]),
+
+	%   tear down
+    ok = erlang_couchdb:delete_database(?CONNECTION, ?DBNAME)
+    .
+
+viewaccess_nullmap() ->
+	[{userdata,[{doc,"Documents creation, set null selection view, accessview and deletion"}]}]	.
+
+viewaccess_nullmap(_Config) ->
+	do_viewaccess_maponly("function(doc) { emit(null, doc)}")
 	.
-	
+
+viewaccess_maponly() ->
+	[{userdata,[{doc,"Documents creation, set view, accessview and deletion"}]}]	.
+
+viewaccess_maponly(_Config) ->
+	do_viewaccess_maponly("function(doc) { if(doc.type) {emit(null, doc.type)}}")
+	.
+
+do_viewaccess_maponly(Viewsource) ->
+	%   setup
+	ok = erlang_couchdb:create_database(?CONNECTION, ?DBNAME),
+	{json,{struct,[_, {<<"id">>, Id},_]}} = erlang_couchdb:create_document(?CONNECTION, ?DBNAME, {struct, [{<<"type">>, <<"D">> } ]}),
+	{json,{struct,[_, {<<"id">>, Id2},_]}} = erlang_couchdb:create_document(?CONNECTION, ?DBNAME, {struct, [{<<"type">>, <<"S">> } ]}),
+	Doc = erlang_couchdb:retrieve_document(?CONNECTION, ?DBNAME, binary_to_list((Id))),
+	ct:print(test_category, "Document: ~p", [Doc]),
+	Doc2 = erlang_couchdb:retrieve_document(?CONNECTION, ?DBNAME, binary_to_list(Id2)),
+	ct:print(test_category, "Document2: ~p", [Doc2]),
+	Views = [{"all", Viewsource}],
+	Res = erlang_couchdb:create_view(?CONNECTION, ?DBNAME, "testview", "javascript", Views, []),
+	ct:print("view creation result: ~p~n",[Res]),
+
+	% view access
+	ResView = erlang_couchdb:invoke_view(?CONNECTION, ?DBNAME, "testview", "all",[]),
+	ct:print("view access result: ~p~n",[ResView]),
+
+	%   tear down
+	ok = erlang_couchdb:delete_database(?CONNECTION, ?DBNAME)
+	.

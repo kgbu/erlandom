@@ -25,27 +25,25 @@ compile:	${MODS:%=%.beam}
 #	FIXME: path setting shall be fixed to remove BEAM copy
 ct:	compile
 	cp *.beam ./test
+	cp *.hrl ./test
+	cp saved_db ./test
 	/usr/local/lib/erlang/lib//common_test-1.4.5/priv/bin/run_test -dir . -logdir ./webhook/htdocs/couchtest -cover ./config/pshb.coverspec
 
 #	start Erlang interpreter in various environments
 #
 start:
-	erl -boot start_sasl -config debug
+	erl -boot start_sasl -config debug -s pshb start
 
 production:
 	erl -boot start_sasl -config production
 
 
-# subdirs:
-#	cd dir1: make
-#	cd dir2: make
-
+#	clean ups
+#
 clean_all:	clean clean_test
 clean:
 	rm -rf *.beam erl_crash.dump
-#	cd dir1: make clean
-#	cd dir2: make clean
 
 #	clean up common test results(directories)
 clean_test:
-	rm -rf ./test_logs/ct_run.ct@www*
+	rm -rf ./webhook/htdocs/couchtest/ct_run.ct@www*
