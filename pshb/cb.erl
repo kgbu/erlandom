@@ -6,7 +6,8 @@
 %%%
 
 -module(cb).
--export([notice/3]).
+%-export([notice/3]).
+-compile(export_all).
 
 -include("pshb.hrl").
 %-define(TEXTHEADER, "Content-type:text/html\r\n\r\n").
